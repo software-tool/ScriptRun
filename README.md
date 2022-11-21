@@ -74,7 +74,7 @@ Inside the scripts you can write some output to be shown in the ScriptRun interf
 * Read metadata for file only from file content (not registry); might be re-activated in the future
 
 ## Version 0.91
-(2022-11-20)
+(2022-11-21)
 
 * Fix display of recent execution parameters
 * Ability to remove certain recent execution entries
