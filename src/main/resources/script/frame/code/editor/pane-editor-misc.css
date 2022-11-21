@@ -1,0 +1,14 @@
+/* Code Editor */
+
+.styled-text-area .paragraph-box .selection {
+    -fx-fill: #dfdfdf;
+}
+
+/* All rows: spacing left */
+.styled-text-area .paragraph-box .paragraph-text {
+    -fx-padding: 0px 0px 0px 7px;
+}
+
+.paragraph-text {
+	-fx-tab-size: 4;
+}

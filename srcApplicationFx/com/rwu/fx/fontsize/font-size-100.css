@@ -1,0 +1,21 @@
+
+.label,
+.button,
+.toggle-button,
+.check-box,
+.radio-button,
+.hyperlink,
+.text-field,
+.text-area,
+.table-row-cell,
+.list-cell {
+    -fx-font-size: 1.0em;
+}
+
+.titlesmed {
+    -fx-font-size: 1.0em;
+}
+
+.titles {
+    -fx-font-size: 1.2em;
+}

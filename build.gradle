@@ -1,0 +1,92 @@
+plugins {
+    // Apply the java-library plugin to add support for Java Library
+    id 'application'
+}
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'application'
+
+mainClassName = 'script.Scripting'
+
+repositories {
+    // Use jcenter for resolving dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+}
+
+dependencies {
+
+    // JavaFx
+    
+    implementation files('lib/javafx/javafx.base.jar')
+    implementation files('lib/javafx/javafx.controls.jar')
+    implementation files('lib/javafx/javafx.fxml.jar')
+    implementation files('lib/javafx/javafx.graphics.jar')
+    implementation files('lib/javafx/javafx.media.jar')
+    implementation files('lib/javafx/javafx.swing.jar')
+    implementation files('lib/javafx/javafx.web.jar')
+
+    // Contains all .dlls to be run on Windows, adding them as resources
+    implementation files('lib/javafx/javafxbin_19.jar')
+
+	// Groovy
+
+    implementation files('lib/groovy/groovy-4.0.6.jar')
+    implementation files('lib/groovy/ivy-2.5.0.jar')
+    
+    // JSON
+
+    implementation files('lib/json-20201115.jar')
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+
+    // https://mvnrepository.com/artifact/com.miglayout/miglayout-javafx
+    //implementation 'com.miglayout:miglayout-javafx:4.2'
+    implementation files('lib/miglayout-3.7.4.jar')
+    implementation files('lib/miglayout-javafx-4.2.jar')
+
+    // Editor
+    
+    implementation files('lib/richtextfx-fat-0.11.0.jar')
+
+    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
+    implementation 'com.google.guava:guava:28.2-jre'
+
+    // Use JUnit test framework
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes(
+            'Main-Class'       : "script.Scripting",
+            'Class-Path'       : "." + " lib/groovy/groovy-4.0.6.jar" + " lib/groovy/ivy-2.5.0.jar" + " lib/miglayout-3.7.4.jar" + " lib/miglayout-javafx-4.2.jar" + " lib/json-20201115.jar" + " lib/richtextfx-fat-0.11.0.jar" + " lib/javafx/javafx.base.jar" + " lib/javafx/javafx.controls.jar" + " lib/javafx/javafx.fxml.jar" + " lib/javafx/javafx.graphics.jar" + " lib/javafx/javafx.media.jar" + " lib/javafx/javafx.swing.jar" + " lib/javafx/javafx.web.jar" + " lib/javafx/javafxbin_19.jar",
+        )
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'srcBasics'
+
+            srcDir 'srcMenuFactory'
+            srcDir 'srcMenufx'
+            
+            srcDir 'srcAnchorfx'
+
+            srcDir 'srcApplication'
+            srcDir 'srcApplicationFx'
+        }
+
+        resources {
+        }
+    }
+ }

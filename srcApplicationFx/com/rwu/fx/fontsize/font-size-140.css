@@ -1,0 +1,25 @@
+
+.label,
+.button,
+.toggle-button,
+.check-box,
+.radio-button,
+.hyperlink,
+.text-field,
+.text-area,
+.table-row-cell,
+.list-cell {
+    -fx-font-size: 1.4em;
+}
+
+.titlesmed {
+    -fx-font-size: 1.4em;
+}
+
+.titles {
+    -fx-font-size: 1.9em;
+}
+
+.tree-cell > .tree-disclosure-node > .arrow {
+    -fx-padding: 0.39333em 0.289em 0.39333em 0.289em;
+}

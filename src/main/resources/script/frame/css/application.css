@@ -1,0 +1,276 @@
+/* Main */
+
+.icon_toolbar {
+	-fx-background-color: transparent;
+	-fx-padding: 4 8 4 8;
+}
+
+.icon_toolbar:hover {
+	-fx-background-color: -fx-outer-border;
+}
+
+.button_default {
+	-fx-background-color: transparent;
+	-fx-padding: 4 8 4 8;
+}
+
+.button_default:hover {
+	-fx-background-color: #eeeeee;
+}
+
+.scroll-pane {
+	-fx-background-color: #ffffff;
+}
+
+.scroll-pane > .viewport {
+   -fx-background-color: #ffffff;
+}
+
+.button_flat {
+    -fx-background-color: transparent;
+}
+
+.button_flat:focused {
+    -fx-background-color: #dfdfdf;
+}
+
+.button_flat:pressed {
+    -fx-background-color: #bbbbbb;
+}
+
+.button_flat:hover {
+    -fx-background-color: -fx-outer-border;
+}
+
+/* Contents */
+
+.pane_script_script_directory_file_title:hover {
+	-fx-background-color: #eeffee;
+}
+
+.pane_script_directory_selected {
+}
+
+.content_title {
+	-fx-font-size: 1.6em;
+}
+
+.code_editor {
+}
+
+.pane-recent-remove-for-file:hover {
+    -fx-cursor: hand;
+}
+
+.pane-recent:hover {
+    -fx-background-color: #eeeeee;
+}
+
+.pane-recent-cell {
+    -fx-background-color: #bbbbbb, white;
+
+    -fx-border-color: #767676 #767676 #767676 #767676;
+
+    -fx-border-width: 0 1 1 0;
+}
+
+.pane-recent-cell-border-left {
+    -fx-border-width: 0 1 1 1;
+}
+
+.pane-recent-cell-border-top {
+    -fx-border-width: 1 1 1 0;
+}
+
+.pane-recent-cell-border-top-left {
+    -fx-border-width: 1 1 1 1;
+}
+
+.pane-recent-cell-execute:hover {
+    -fx-background-color: #ffcccc !important;
+
+    -fx-cursor: hand;
+}
+
+.pane-recent-cell-remove:hover {
+    -fx-background-color: #ccccff !important;
+
+    -fx-cursor: hand;
+}
+
+.pane-recent-cell:hover {
+    -fx-background-color: #cccccc;
+}
+.recent-label-in-cell {
+    -fx-padding: 1 5 1 5;
+}
+
+/* Bar */
+
+.pane_directory_bar_item {
+	-fx-border-color: #ffffff #767676 #ffffff #ffffff;
+	-fx-border-width: 0 0 0 0;
+}
+
+.directory_bar_item_title {
+	-fx-padding: 4 8 4 8;
+}
+
+.directory_bar_item_title_wrapper {
+}
+
+.directory_bar_item_title_wrapper:hover {
+}
+
+.pane_script_directory_selected .directory_bar_item_title_wrapper {
+}
+
+.script_directory_file_title {
+	-fx-padding: 4 8 4 8;
+}
+
+.directory_bar_item_content {
+	-fx-padding: 0 0 4 6;
+}
+
+.script_group_title {
+	-fx-font-weight: bold;
+}
+
+.script_group_title_wrapper {
+    -fx-padding: 4 4 4 4;
+}
+
+.script_group_title_wrapper:hover {
+    -fx-background-color: #eeeeee;
+}
+
+/* Hover on file listed */
+.sidebar_button_title_hover {
+	-fx-background-color: #BCDDDB;
+}
+
+.sidebar_button_run {
+	-fx-opacity: 0.2;
+	
+	-fx-padding: 2 8 2 8;
+}
+
+.sidebar_button_run:hover {
+	-fx-opacity: 1;
+}
+
+.sidebar_button_edit {
+	-fx-opacity: 0.2;
+}
+
+.sidebar_button_edit:hover {
+	-fx-opacity: 1;
+}
+
+.sidebar-execution-row:hover,
+.sidebar-editing-row: hover {
+    -fx-background-color: #BCDDDB;
+}
+
+/* Scripts */
+
+.pane_script_path {
+	-fx-padding: 4 8 4 8;
+}
+
+.pane_sidebar {
+	-fx-padding: 6 0 6 0;
+}
+
+.pane_script_info {
+	-fx-padding: 4 8 4 8;
+}
+
+.pane_script_run {
+	-fx-min-width: 90px;
+	-fx-min-height: 90px;
+}
+
+.pane_script_edit {
+	-fx-min-width: 50px;
+	-fx-min-height: 50px;
+}
+
+.pane_script_info:hover,
+.pane_script_run:hover,
+.pane_script_edit:hover {
+	-fx-background-color: -fx-outer-border;
+}
+
+.input_size_small1 {
+}
+.input_size_medium1 {
+    -fx-min-width: 400px;
+}
+.input_size_big1 {
+    -fx-min-width: 700px;
+}
+
+.input_height_small1 {
+}
+.input_height_medium1 {
+    -fx-min-height: 200px;
+}
+.input_height_big1 {
+    -fx-min-height: 500px;
+}
+
+/* Misc */
+
+.textarea_noborder {
+	-fx-background-color: transparent;
+	
+	-fx-border-color: #ffffff;
+	-fx-effect: null;
+}
+
+.tooltip {
+	-fx-background-color: #FFFFCC;
+	-fx-border-color: #767676;
+	-fx-text-fill: #000;
+	
+	-fx-effect: null;
+	
+	-fx-font-size: 1.0em;
+	
+	-fx-padding: 2 9 2 9;
+}
+
+/* Java */
+
+.keyword {
+    -fx-fill: purple;
+    -fx-font-weight: bold;
+}
+.semicolon {
+    -fx-font-weight: bold;
+}
+.paren {
+    -fx-fill: firebrick;
+    -fx-font-weight: bold;
+}
+.bracket {
+    -fx-fill: darkgreen;
+    -fx-font-weight: bold;
+}
+.brace {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.string {
+    -fx-fill: blue;
+}
+
+.comment {
+	-fx-fill: cadetblue;
+}
+
+.paragraph-box:has-caret {
+    -fx-background-color: #f2f9fc;
+}

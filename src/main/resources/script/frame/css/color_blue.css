@@ -1,0 +1,30 @@
+.directory_bar_item_title_wrapper {
+	-fx-background-color: #CFD2CF;
+}
+
+.directory_bar_item_title_wrapper:hover {
+	-fx-background-color: #d5d8dc;
+}
+
+.pane_script_directory_selected .directory_bar_item_title_wrapper {
+	-fx-background-color: #B2C8DF;
+}
+
+/* Hover on file listed */
+.sidebar_button_title_hover {
+	-fx-background-color: #C4D7E0;
+}
+
+/* Scripts */
+
+.pane_script_info {
+	-fx-background-color: #C4D7E0;
+}
+
+.pane_script_run {
+	-fx-background-color: #eeeeee;
+}
+
+.pane_script_edit {
+	-fx-background-color: #eeeeee;
+}

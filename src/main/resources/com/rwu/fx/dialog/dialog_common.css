@@ -1,0 +1,7 @@
+.content_drag_over {
+	-fx-background-color: #FFFFCC;
+}
+
+.content_drag_start {
+	-fx-background-color: #CCFFFF;
+}
