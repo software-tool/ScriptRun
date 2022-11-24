@@ -16,6 +16,8 @@ Interface to easily run scripts (currently: Groovy only)
 
 Download: [ScriptRun 0.91](Releases/0.91/ScriptRun.exe)
 
+(newest release)
+
 ## More Documentation, with Details
 
 * [Input Fields](docs/script_input_fields.md)
@@ -70,6 +72,11 @@ Inside the scripts you can write some output to be shown in the ScriptRun interf
 
 ## Version 0.92 (ongoing)
 (NOT YET CREATED)
+
+* Display of history-pages corrected
+* Input fields can be hidden/shown using toggle button
+
+Misc:
 
 * Read metadata for file only from file content (not registry); might be re-activated in the future
 

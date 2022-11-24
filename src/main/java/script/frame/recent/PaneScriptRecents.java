@@ -40,12 +40,12 @@ public class PaneScriptRecents implements IContent, IScriptRecentContainer {
         return labelTitle;
     }
 
-    public void addHeader(PaneScriptRecent paneScriptRecent) {
-        paneScriptRecent.addHeader(grid);
+    public void addHeader(PaneScriptRecent paneScriptRecent, int valuesCountInTable) {
+        paneScriptRecent.addHeader(grid, valuesCountInTable);
     }
 
-    public void fillInTable(PaneScriptRecent paneScriptRecent) {
-        paneScriptRecent.fillInTable(grid);
+    public void fillInTable(PaneScriptRecent paneScriptRecent, int rowIndex, int valuesCountInTable) {
+        paneScriptRecent.fillInTable(grid, rowIndex, valuesCountInTable);
     }
 
     @Override
@@ -100,17 +100,22 @@ public class PaneScriptRecents implements IContent, IScriptRecentContainer {
                 container.fill();
             });
 
-            boolean first = true;
+            int maxValuesCount = 0;
+            for (ScriptRecent scriptRecent : values) {
+                maxValuesCount = Math.max(scriptRecent.getValuesCount(), maxValuesCount);
+            }
+
+            int rowIndex = 0;
             for (ScriptRecent scriptRecent : values) {
                 PaneScriptRecent pane = new PaneScriptRecent(container, scriptRecent, false);
 
-                if (first) {
-                    scriptRecents.addHeader(pane);
+                if (rowIndex == 0) {
+                    scriptRecents.addHeader(pane, maxValuesCount);
                 }
 
-                scriptRecents.fillInTable(pane);
+                scriptRecents.fillInTable(pane, rowIndex, maxValuesCount);
 
-                first = false;
+                rowIndex++;
             }
 
             parent.getChildren().add(titlePane);

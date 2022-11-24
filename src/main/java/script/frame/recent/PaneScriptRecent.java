@@ -57,7 +57,7 @@ public class PaneScriptRecent implements IContent {
         FxIconUtils.setIconNoStyleWithSize(buttonRemove, "bin_closed.png", 20);
     }
 
-    public void addHeader(MigPane grid) {
+    public void addHeader(MigPane grid, int valuesCountInTable) {
         Label dummy1 = new Label();
         Label dummy2 = new Label(Ln.get(K.Date));
         Label dummy3 = new Label(Ln.get(K.Time));
@@ -66,9 +66,25 @@ public class PaneScriptRecent implements IContent {
         addInCell(grid, dummy2, false, true, false);
         addInCell(grid, dummy3, false, true, false);
 
+        int valueIndex = 0;
+
         for (ScriptValue value : scriptRecent.getValues()) {
+            int indexShown = value.getIndex() + 1;
+
             Label labelName = new Label();
-            labelName.setText(value.getIndex()+"");
+            labelName.setText(indexShown + "");
+
+            addInCell(grid, labelName, false, true, false);
+
+            valueIndex++;
+        }
+
+        // Fill up empty spaces
+        for (int i = valueIndex; i<valuesCountInTable; i++) {
+            int indexShown = i + 1;
+
+            Label labelName = new Label();
+            labelName.setText(indexShown + "");
 
             addInCell(grid, labelName, false, true, false);
         }
@@ -76,27 +92,32 @@ public class PaneScriptRecent implements IContent {
         addInCell(grid, new Label(), false, false, true);
     }
 
-    public void fillInTable(MigPane grid) {
+    public void fillInTable(MigPane grid, int rowIndex, int valuesCountInTable) {
         addRunScriptCell(grid);
 
-        addInCell(grid, labelDay);
+        addCellDateTime(grid, labelDay);
 
-        addInCell(grid, labelTime);
+        addCellDateTime(grid, labelTime);
 
+        int valuesPresent = 0;
         for (ScriptValue value : scriptRecent.getValues()) {
             Label labelValue = new Label();
 
             String valueReduced = StringUtils.getReducedText(value.getStringValue(), 120, 3);
             labelValue.setText(valueReduced);
 
-            addInCell(grid, labelValue);
+            addCellOfValue(grid, labelValue);
+
+            valuesPresent++;
         }
 
-        addRemoveRecentCell(grid);
-    }
+        // Fill up empty spaces
+        for (int i = valuesPresent; i<valuesCountInTable; i++) {
+            Label labelValue = new Label();
+            addCellOfValue(grid, labelValue);
+        }
 
-    private void addInCell(MigPane table, Node content) {
-        addInCell(table, content, false, false, false);
+        addRemoveRecentCell(grid, rowIndex);
     }
 
     /**
@@ -117,10 +138,42 @@ public class PaneScriptRecent implements IContent {
             ControllerScripts.openDetails(new Script(scriptRecent.getFile()), scriptRecent);
         });
 
-        table.add(pane, MigLayoutConstants.RECENT_CELL);
+        table.add(pane, MigLayoutConstants.RECENT_CELL_SET_WIDTH);
     }
 
-    private void addRemoveRecentCell(MigPane table) {
+    private void addCellDateTime(MigPane table, Label content) {
+        Pane pane = new Pane();
+
+        pane.getStyleClass().add("pane-recent-cell");
+
+        content.getStyleClass().add("recent-label-in-cell");
+
+        pane.getChildren().add(content);
+
+        pane.setOnMouseClicked(e -> {
+            ControllerScripts.openDetails(new Script(scriptRecent.getFile()), scriptRecent);
+        });
+
+        table.add(pane, MigLayoutConstants.RECENT_CELL_SET_WIDTH);
+    }
+
+    private void addCellOfValue(MigPane table, Label content) {
+        Pane pane = new Pane();
+
+        pane.getStyleClass().add("pane-recent-cell");
+
+        content.getStyleClass().add("recent-label-in-cell");
+
+        pane.getChildren().add(content);
+
+        pane.setOnMouseClicked(e -> {
+            ControllerScripts.openDetails(new Script(scriptRecent.getFile()), scriptRecent);
+        });
+
+        table.add(pane, MigLayoutConstants.RECENT_CELL_SET_WIDTH);
+    }
+
+    private void addRemoveRecentCell(MigPane table, int rowIndex) {
         MigPane pane = new MigPane();
 
         ImageView imageView = FxIconUtils.getImageView("broom.png");
@@ -129,7 +182,9 @@ public class PaneScriptRecent implements IContent {
 
         pane.getStyleClass().add("pane-recent-cell");
         pane.getStyleClass().add("pane-recent-cell-remove");
-        pane.getStyleClass().add("pane-recent-cell-border-top");
+        if (rowIndex == 0) {
+            pane.getStyleClass().add("pane-recent-cell-border-top");
+        }
 
         pane.add(imageView, "gapleft 1, gaptop 1, gapright 1");
 
@@ -141,7 +196,7 @@ public class PaneScriptRecent implements IContent {
 
         FxTooltip.setTooltip(pane, Ln.get(K.DeleteRecent));
 
-        table.add(pane, MigLayoutConstants.RECENT_CELL + ", wrap");
+        table.add(pane, MigLayoutConstants.RECENT_CELL_AND_WRAP);
     }
 
     private void addInCell(MigPane table, Node content, boolean borderLeft, boolean borderTop, boolean end) {
@@ -174,7 +229,7 @@ public class PaneScriptRecent implements IContent {
         });
 
         if (end) {
-            table.add(pane, "wrap");
+            table.add(pane, MigLayoutConstants.WRAP_ONLY);
         } else {
             table.add(pane, MigLayoutConstants.RECENT_CELL);
         }

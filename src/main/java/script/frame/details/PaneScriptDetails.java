@@ -130,6 +130,7 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 
 	@Deprecated
 	private ToggleButton buttonToggleEdit = new ToggleButton();
+	private ToggleButton buttonToggleShowInput = new ToggleButton();
 	private ToggleButton buttonToggleRepeat = new ToggleButton();
 	private ToggleButton buttonToggleShowCode = new ToggleButton();
 	private ToggleButton buttonToggleShowOutput = new ToggleButton();
@@ -216,6 +217,8 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		buttonStop.setDisable(true);
 		buttonSaveCode.setDisable(true);
 
+		buttonToggleShowInput.setSelected(true);
+
 		FxIconUtils.setButtonStyleFlat(buttonStop);
 
 		FxIconUtils.setIconNoStyleWithSize(buttonClose, "close.png");
@@ -227,6 +230,7 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		FxIconUtils.setIconNoStyleWithSize(buttonReloadFieldsFromScript, "refresh_all.png", FxIconUtils.ICON_SIZE_MEDIUM);
 
 		FxIconUtils.setIconNoStyleWithSize(buttonToggleEdit, "edit_button.png", FxIconUtils.ICON_SIZE_MEDIUM);
+		FxIconUtils.setIconNoStyleWithSize(buttonToggleShowInput, "edit_button.png", FxIconUtils.ICON_SIZE_MEDIUM);
 		FxIconUtils.setIconNoStyleWithSize(buttonToggleRepeat, "arrow_repeat.png", FxIconUtils.ICON_SIZE_MEDIUM);
 		FxIconUtils.setIconNoStyleWithSize(buttonAddInput, "plus.png", FxIconUtils.ICON_SIZE_MEDIUM);
 		FxIconUtils.setIconNoStyleWithSize(buttonToggleShowCode, "text_prose.png", FxIconUtils.ICON_SIZE_MEDIUM);
@@ -314,6 +318,10 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 
 		buttonToggleRepeat.setOnAction(e -> {
 			setShowRepeat(buttonToggleRepeat.isSelected());
+		});
+
+		buttonToggleShowInput.setOnAction(e -> {
+			setShowInput(buttonToggleShowInput.isSelected());
 		});
 
 		buttonToggleShowCode.setOnAction(e -> {
@@ -585,6 +593,18 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		updateTitle();
 	}
 
+	public void setShowInput(boolean showInput) {
+		addInputSection();
+
+		if (showInput) {
+			dockNodeInput.dock(stationTop, DockPosition.CENTER, 1);
+		} else {
+			if (dockNodeInput != null) {
+				dockNodeInput.undock();
+			}
+		}
+	}
+
 	public void setShowRepeat(boolean showRepeat) {
 		boxRepeat.setVisible(showRepeat);
 	}
@@ -765,6 +785,12 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		boxRepeat.getChildren().add(checkRepeat);
 		boxRepeat.getChildren().add(choiceSeconds);
 
+		Pane space1 = new Pane();
+		Pane space2 = new Pane();
+
+		space1.setMinWidth(6);
+		space2.setMinWidth(6);
+
 		HBox container = new HBox();
 		HBox right = new HBox();
 		right.setSpacing(8);
@@ -780,12 +806,16 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		// Repeat
 		right.getChildren().add(boxRepeat);
 
-		right.getChildren().add(buttonAddInput);
-
+		//right.getChildren().add(buttonAddInput);
 		//right.getChildren().add(buttonToggleEdit);
-		right.getChildren().add(buttonToggleRepeat);
 
+		right.getChildren().add(buttonToggleRepeat);
+		right.getChildren().add(space1);
+
+		right.getChildren().add(buttonToggleShowInput);
 		right.getChildren().add(buttonToggleShowOutput);
+		right.getChildren().add(space2);
+
 		right.getChildren().add(buttonToggleShowCode);
 
 		//right.getChildren().add(buttonMore);
@@ -1152,11 +1182,13 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		boolean codeShown = isCodeShowing();
 		boolean inputShown = isInputShowing();
 		boolean outputShown = isOutputShowing();
+
 		if (!codeShown) {
 			buttonToggleShowCode.setSelected(false);
 		}
 		if (!inputShown) {
 			buttonToggleEdit.setSelected(false);
+			buttonToggleShowInput.setSelected(false);
 
 			onEditingChanged();
 		}

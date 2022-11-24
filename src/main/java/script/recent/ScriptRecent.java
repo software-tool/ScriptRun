@@ -75,6 +75,10 @@ public class ScriptRecent {
         return other.getValues().equals(getValues());
     }
 
+    public int getValuesCount() {
+        return values.size();
+    }
+
     public int getCharacterCount() {
         int filePath = file.getAbsolutePath().length();
 
