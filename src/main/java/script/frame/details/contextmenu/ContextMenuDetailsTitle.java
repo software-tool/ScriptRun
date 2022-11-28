@@ -28,7 +28,7 @@ public class ContextMenuDetailsTitle {
 		itemChangeTitle.setOnAction(e -> {
 			String preset = null;
 
-			String path = parent.getPath();
+			String path = parent.getScriptFullPath();
 			FileMetadata fileCustom = FileMetadataManager.getCombined(path);
 			if (fileCustom != null) {
 				preset = fileCustom.getTitle();

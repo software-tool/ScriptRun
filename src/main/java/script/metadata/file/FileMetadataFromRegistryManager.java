@@ -11,26 +11,15 @@ import java.util.List;
 
 /**
  * Store some metadata in the registry
- *
- * (currently deactivated)
  */
-@Deprecated
 public class FileMetadataFromRegistryManager {
 
     private static int LIST_MAX_SIZE = 500;
 
-    public static boolean REGISTRY_STORAGE_DEACTIVATED = true;
-
-    // Values
-    private static String TITLE = "title";
-    private static String DESCRIPTION = "description";
-
-    @Deprecated
-    private static String INPUTS = "inputs";
+    // Included
+    private static String INCLUDES = "includes";
 
     private static String PATHS = "paths";
-
-    private static String REPEAT_SECONDS = "repeat_seconds";
 
     private static List<FileMetadata> metadataEntries = new ArrayList<>();
 
@@ -58,14 +47,13 @@ public class FileMetadataFromRegistryManager {
     }
 
     public static void read() {
-        if (REGISTRY_STORAGE_DEACTIVATED) return;
-
-        List<String> list = AppConfigUtil.readList(ConfigConstants.METADATA, ConfigConstants.CUSTOM_FILE + "_", LIST_MAX_SIZE, true);
+        List<String> list = AppConfigUtil.readList(ConfigConstants.FILE_METADATA, ConfigConstants.CUSTOM_FILE + "_", LIST_MAX_SIZE, true);
         for (String value : list) {
             // Read
             JSONObject parsed = new JSONObject(value);
 
             List<String> pathList = new ArrayList<>();
+            List<String> includesList = new ArrayList<>();
 
             if (parsed.has(PATHS)) {
                 JSONArray paths = parsed.getJSONArray(PATHS);
@@ -78,72 +66,53 @@ public class FileMetadataFromRegistryManager {
                 }
             }
 
-            // Repeat
+            if (parsed.has(INCLUDES)) {
+                JSONArray includesArr = parsed.getJSONArray(INCLUDES);
+                for (Object include : includesArr) {
+                    //System.out.println("path: " + path + ", " + path.getClass());
 
-            int repeatSeconds = 10;
-            if (parsed.has(REPEAT_SECONDS)) {
-                repeatSeconds = parsed.getInt(REPEAT_SECONDS);
+                    if (include instanceof String) {
+                        includesList.add((String) include);
+                    }
+                }
             }
 
             FileMetadata custom = new FileMetadata(pathList);
-            custom.setRepeatSeconds(repeatSeconds);
-
-            // Title
-            if (parsed.has(TITLE)) {
-                String title = parsed.get(TITLE) + "";
-                custom.setTitle(title);
-            }
-
-            // Inputs
-            // Do not read inputs from registry now
-            /*if (parsed.has(INPUTS)) {
-                JSONArray arr = parsed.getJSONArray(INPUTS);
-
-                custom.setInputs(InputPersistence.parse(arr));
-            }*/
+            custom.getIncludes().addAll(includesList);
 
             metadataEntries.add(custom);
         }
     }
 
     public static void store() {
-        if (REGISTRY_STORAGE_DEACTIVATED) return;
-
         List<String> toStore = new ArrayList<>();
         for (FileMetadata custom : metadataEntries) {
             JSONObject obj = new JSONObject();
 
             // Paths
 
-            JSONArray paths = new JSONArray();
+            JSONArray pathsArr = new JSONArray();
+            JSONArray includesArr = new JSONArray();
 
             List<String> pathList = custom.getPaths();
             for (String path : pathList) {
-                paths.put(path);
+                pathsArr.put(path);
             }
-            obj.put(PATHS, paths);
+            obj.put(PATHS, pathsArr);
 
-            // Repeat
+            // Includes
 
-            int repeatSeconds = custom.getRepeatSeconds();
-            if (repeatSeconds != 10) {
-                obj.put(REPEAT_SECONDS, repeatSeconds);
+            List<String> includes = custom.getIncludes();
+            for (String include : includes) {
+                includesArr.put(include);
             }
 
-            // Title
-
-            String title = custom.getTitle();
-            obj.put(TITLE, title);
-
-            // Inputs
-
-            //JSONArray inputsArr = InputPersistence.toJson(custom.getInputs());
-            //obj.put(INPUTS, inputsArr);
+            obj.put(INCLUDES, includesArr);
 
             String storeStr = obj.toString();
             toStore.add(storeStr);
         }
 
-        AppConfigUtil.storeList(ConfigConstants.METADATA, ConfigConstants.CUSTOM_FILE + "_", toStore, LIST_MAX_SIZE, true);
+        AppConfigUtil.storeList(ConfigConstants.FILE_METADATA, ConfigConstants.CUSTOM_FILE + "_", toStore, LIST_MAX_SIZE, true);
     }
 }

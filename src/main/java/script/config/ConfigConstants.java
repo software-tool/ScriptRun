@@ -8,9 +8,8 @@ public class ConfigConstants {
 	// Level: Recent
 	public static String RECENT = "recent";
 
-	// Level: Metadata
-	@Deprecated
-	public static String METADATA = "metadata";
+	// Level: Metadata for files
+	public static String FILE_METADATA = "file_metadata";
 
 	// Level: Metadata for directories
 	public static String DIRECTORY_METADATA = "directory_metadata";

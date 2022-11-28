@@ -14,7 +14,7 @@ Interface to easily run scripts (currently: Groovy only)
 
 ## Current Release
 
-Download: [ScriptRun 0.91](Releases/0.91/ScriptRun.exe)
+Download: [ScriptRun 0.92](Releases/0.92/ScriptRun.exe)
 
 (newest release)
 
@@ -70,15 +70,16 @@ Inside the scripts you can write some output to be shown in the ScriptRun interf
 
 ## Version History
 
-## Version 0.92 (ongoing)
-(NOT YET CREATED)
+## Version 0.92
+(2022-11-28)
 
-* Display of history-pages corrected
+* Allow to include scripts into other scripts easily (see script editing)
 * Input fields can be hidden/shown using toggle button
 
 Misc:
 
-* Read metadata for file only from file content (not registry); might be re-activated in the future
+* Display of history-pages corrected
+* Bugfix: Allow mandadory fields
 
 ## Version 0.91
 (2022-11-21)

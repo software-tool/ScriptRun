@@ -22,6 +22,12 @@ public class ControllerScripts {
 		PaneMain.inst.openDetails(script, false, false, scriptRecent, false);
 	}
 
+	public static void openDetailsAndRun(Script script, ScriptRecent scriptRecent) {
+		openDetails(script, scriptRecent);
+
+		doRunSelected(true);
+	}
+
 	public static Script getSelected() {
 		return PaneMain.inst.getSelected();
 	}

@@ -42,9 +42,6 @@ public class PaneScriptRecent implements IContent {
         this.parent = parent;
         this.scriptRecent = scriptRecent;
 
-        //String filepath = showFullPath ? scriptRecent.getFile().getAbsolutePath() : scriptRecent.getFile().getName();
-        //String path = StringUtils.getReducedText(filepath, 120, 1);
-
         labelDay.setText(DateUtils.formatDateOnly(scriptRecent.getTime()));
         labelTime.setText(DateUtils.formatTimeOnly(scriptRecent.getTime()));
 
@@ -135,7 +132,7 @@ public class PaneScriptRecent implements IContent {
         pane.getChildren().add(imageView);
 
         pane.setOnMouseClicked(e -> {
-            ControllerScripts.openDetails(new Script(scriptRecent.getFile()), scriptRecent);
+            ControllerScripts.openDetailsAndRun(new Script(scriptRecent.getFile()), scriptRecent);
         });
 
         table.add(pane, MigLayoutConstants.RECENT_CELL_SET_WIDTH);

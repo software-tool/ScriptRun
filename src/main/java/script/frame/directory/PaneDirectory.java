@@ -70,6 +70,10 @@ public class PaneDirectory implements IContent, IExecutePane, IScriptResultListe
 	private Button buttonSaveNewScript = new Button();
 	private Button buttonCancelAddScript = new Button();
 
+	private CheckBox checkIsIncludeDirectory = new CheckBox();
+
+	private CheckMenuItem checkIsIncludeDir = new CheckMenuItem();
+
 	private Button buttonMore = new Button();
 
 	private TextField fieldNewScript = new TextField();
@@ -138,13 +142,17 @@ public class PaneDirectory implements IContent, IExecutePane, IScriptResultListe
 			}
 		});
 
+		checkIsIncludeDirectory.setText(Ln.get(K.IsIncludeDirectory));
+
 		FxTooltip.setTooltip(buttonClose, Ln.get(K.MenuClosePage));
 		FxTooltip.setTooltip(buttonCancelAddScript, Ln.get(K.CANCEL));
+
+		FxTooltip.setTooltip(checkIsIncludeDirectory, Ln.get(K.IsIncludeDirectory));
 
 		FxIconUtils.setIconNoStyleWithSize(buttonClose, "close.png");
 		FxIconUtils.setIconNoStyleWithSize(buttonCancelAddScript, "close.png");
 
-		// Hinzufuegen
+		// Add
 
 		boxAddScriptInput.getChildren().add(buttonCancelAddScript);
 		boxAddScriptInput.getChildren().add(fieldNewScript);
@@ -200,8 +208,17 @@ public class PaneDirectory implements IContent, IExecutePane, IScriptResultListe
 			updateTitle();
 		});
 
+		checkIsIncludeDir = new CheckMenuItem(Ln.get(K.IsIncludeDirectory));
+		checkIsIncludeDir.setOnAction(e -> {
+			DirectoryMetadataManager.setIsIncludeDirectory(scriptDirectory.getPath(), checkIsIncludeDir.isSelected());
+
+			initValues();
+		});
+
 		contextMenuMore.getItems().add(itemEditTitle);
 		contextMenuMore.getItems().add(itemEditDescription);
+		contextMenuMore.getItems().add(new SeparatorMenuItem());
+		contextMenuMore.getItems().add(checkIsIncludeDir);
 	}
 
 	private void initActions() {
@@ -261,6 +278,25 @@ public class PaneDirectory implements IContent, IExecutePane, IScriptResultListe
 		buttonClose.setOnAction(e -> {
 			ControllerPages.closeCurrentPage();
 		});
+
+		checkIsIncludeDirectory.setOnAction(e -> {
+			DirectoryMetadataManager.setIsIncludeDirectory(scriptDirectory.getPath(), checkIsIncludeDirectory.isSelected());
+
+			initValues();
+		});
+	}
+
+	private void initValues() {
+		boolean isIncludeDirectory = false;
+
+		DirectoryMetadata directoryMetadata = DirectoryMetadataManager.get(scriptDirectory.getPath());
+		if (directoryMetadata != null) {
+			isIncludeDirectory = directoryMetadata.isIncludeDirectory();
+		}
+
+		checkIsIncludeDir.setSelected(isIncludeDirectory);
+		checkIsIncludeDirectory.setVisible(isIncludeDirectory);
+		checkIsIncludeDirectory.setSelected(isIncludeDirectory);
 	}
 
 	private void updateTitle() {
@@ -331,6 +367,7 @@ public class PaneDirectory implements IContent, IExecutePane, IScriptResultListe
 
 			HBox boxButtonsRight = new HBox();
 			boxButtonsRight.setSpacing(8);
+			boxButtonsRight.getChildren().add(checkIsIncludeDirectory);
 			boxButtonsRight.getChildren().add(buttonAddScript);
 			boxButtonsRight.getChildren().add(buttonMore);
 
@@ -392,6 +429,8 @@ public class PaneDirectory implements IContent, IExecutePane, IScriptResultListe
 		// Texts
 		labelPath.setText(scriptDirectory.getPath());
 
+		initValues();
+
 		// Reset
 		//labelExecuted.setText("");
 
@@ -411,7 +450,7 @@ public class PaneDirectory implements IContent, IExecutePane, IScriptResultListe
 	}
 
 	public void runScript(File file) {
-		ScriptInst instCurrent = new ScriptInst();
+		ScriptInst instCurrent = new ScriptInst(null);
 		ScriptFile scriptFileCurrent = new ScriptFile(file);
 
 		ScriptRunning scriptRunning = ScriptRun.runScriptInThread(null, instCurrent, scriptFileCurrent).getScriptRunning();

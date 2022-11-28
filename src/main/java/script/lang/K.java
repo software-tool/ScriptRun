@@ -145,4 +145,9 @@ public class K {
     public static final String Time = "Time";
     public static final String DeleteRecent = "DeleteRecent";
     public static final String DeleteRecentOfFile = "DeleteRecentOfFile";
+    public static final String IsIncludeDirectory = "IsIncludeDirectory";
+    public static final String SelectIncludes = "SelectIncludes";
+    public static final String SelectIncludesInfo = "SelectIncludesInfo";
+    public static final String DockFullScript = "DockFullScript";
+    public static final String ScriptsIncluded = "ScriptsIncluded";
 }

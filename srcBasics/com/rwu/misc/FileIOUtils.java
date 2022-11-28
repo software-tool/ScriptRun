@@ -2,7 +2,6 @@ package com.rwu.misc;
 
 import com.rwu.io.UnicodeReader;
 import com.rwu.log.Log;
-import xml.LogHandler;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -15,6 +14,50 @@ public class FileIOUtils {
 			file.delete();
 		} catch (Exception e) {
 			Log.warn("Error on deletion: " + file.getAbsolutePath() + ", " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Read file
+	 */
+	public static String readFile(File file) throws IOException {
+		byte[] bytes = readFileBytes(file);
+		if (bytes == null) {
+			return null;
+		}
+
+		return new String(bytes);
+	}
+
+	/**
+	 * Read bytes of file
+	 */
+	public static byte[] readFileBytes(String file) throws IOException {
+		return readFileBytes(new File(file));
+	}
+
+	/**
+	 * Read bytes of file
+	 */
+	public static byte[] readFileBytes(File file) throws IOException {
+		if (!file.exists()) {
+			//Log.warning("File to read bytes does not exist", file);
+			return null;
+		}
+
+		// Open file
+		try (RandomAccessFile fileAccess = new RandomAccessFile(file, "r")) {
+			// Get and check length
+			long longlength = fileAccess.length();
+			int length = (int) longlength;
+			if (length != longlength) {
+				throw new IOException("File size >= 2 GB");
+			}
+
+			// Read file and return data
+			byte[] data = new byte[length];
+			fileAccess.readFully(data);
+			return data;
 		}
 	}
 

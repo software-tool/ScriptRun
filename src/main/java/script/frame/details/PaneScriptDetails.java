@@ -7,10 +7,12 @@ import com.anchorage.docks.node.interfaces.IDockNodeListener;
 import com.anchorage.docks.stations.DockStation;
 import com.anchorage.system.AnchorageSystem;
 import com.rwu.application.lang.Ln;
+import com.rwu.fx.dialog.DialogArrange;
 import com.rwu.fx.tooltip.FxTooltip;
 import com.rwu.fx.util.FxContextMenuUtils;
 import com.rwu.fx.util.FxControlUtils;
 import com.rwu.fx.util.FxIconUtils;
+import com.rwu.fx.window.AppWindowFx;
 import com.rwu.log.Log;
 import com.rwu.misc.DateUtils;
 import com.rwu.misc.StringUtils;
@@ -25,6 +27,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import script.Output;
+import script.controller.ControllerFileSave;
 import script.controller.ControllerPages;
 import script.data.Script;
 import script.execute.*;
@@ -52,6 +55,7 @@ import script.frame.state.HasChangesPanes;
 import script.input.InputConfig;
 import script.lang.K;
 import script.manager.ScriptReader;
+import script.metadata.directory.DirectoryMetadataManager;
 import script.metadata.file.FileMetadata;
 import script.metadata.file.FileMetadataFromRegistryManager;
 import script.metadata.file.FileMetadataManager;
@@ -69,6 +73,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Details of script
@@ -84,6 +89,7 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 	private BorderPane containerScriptRun = new BorderPane();
 
 	private Script script;
+	private ScriptPreparation scriptPreparation = new ScriptPreparation();
 	private ScriptInst inst;
 
 	// Title
@@ -101,11 +107,14 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 	// Script
 
 	private PaneCodeOnly paneCodeOnly;
+	private PaneCodeOnly paneFullScript;
 
 	private DockNode dockNodeCode;
 	private DockNode dockNodeInput;
 	private DockNode dockNodeOutput;
 	private DockNode dockNodeOutputHtml;
+
+	private DockNode dockNodeFullScript;
 
 	// Execute
 
@@ -152,6 +161,11 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 	private Button buttonSelectSnippetsInput = new Button();
 	private Button buttonSelectSnippetsOutput = new Button();
 	private Button buttonReloadFieldsFromScript = new Button();
+
+	private Button buttonIncludes = new Button();
+	private Button buttonShowFullScript = new Button();
+
+	private Label labelIncludes = new Label();
 
 	// File changed
 
@@ -219,6 +233,8 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 
 		buttonToggleShowInput.setSelected(true);
 
+		labelIncludes.setPadding(UiCommon.getLabelSpaceTop());
+
 		FxIconUtils.setButtonStyleFlat(buttonStop);
 
 		FxIconUtils.setIconNoStyleWithSize(buttonClose, "close.png");
@@ -228,6 +244,8 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		FxIconUtils.setIconNoStyleWithSize(buttonSelectSnippetsInput, "textfield.png", FxIconUtils.ICON_SIZE_MEDIUM);
 		FxIconUtils.setIconNoStyleWithSize(buttonSelectSnippetsOutput, "source_code.png", FxIconUtils.ICON_SIZE_MEDIUM);
 		FxIconUtils.setIconNoStyleWithSize(buttonReloadFieldsFromScript, "refresh_all.png", FxIconUtils.ICON_SIZE_MEDIUM);
+		FxIconUtils.setIconNoStyleWithSize(buttonIncludes, "document_break.png", FxIconUtils.ICON_SIZE_MEDIUM);
+		FxIconUtils.setIconNoStyleWithSize(buttonShowFullScript, "text_prose.png", FxIconUtils.ICON_SIZE_MEDIUM);
 
 		FxIconUtils.setIconNoStyleWithSize(buttonToggleEdit, "edit_button.png", FxIconUtils.ICON_SIZE_MEDIUM);
 		FxIconUtils.setIconNoStyleWithSize(buttonToggleShowInput, "edit_button.png", FxIconUtils.ICON_SIZE_MEDIUM);
@@ -252,6 +270,8 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		FxTooltip.setTooltip(buttonToggleShowOutput, Ln.get(K.ShowOutput));
 
 		FxTooltip.setTooltip(buttonClose, Ln.get(K.MenuClosePage));
+		FxTooltip.setTooltip(buttonIncludes, Ln.get(K.ScriptsIncluded));
+		FxTooltip.setTooltip(buttonShowFullScript, Ln.get(K.DockFullScript));
 
 		FxTooltip.setTooltip(buttonSelectSnippetsInput, Ln.dots(K.AddInput));
 		FxTooltip.setTooltip(buttonSelectSnippetsOutput, Ln.dots(K.AddOutput));
@@ -354,6 +374,14 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 			updateInputs();
 		});
 
+		buttonIncludes.setOnAction(e -> {
+			editIncludes();
+		});
+
+		buttonShowFullScript.setOnAction(e -> {
+			setShowFullScript(true);
+		});
+
 		buttonReloadFileContent.setOnAction(e -> {
 			String filetext = readFileTextFromFile();
 			paneCodeOnly.setText(filetext);
@@ -375,7 +403,7 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 
 		labelPath.setText(script.getFile().getParent());
 
-		String path = script.getFile().getAbsolutePath();
+		String path = getScriptFullPath();
 
 		FileMetadata fileCustom = FileMetadataManager.getCombined(path);
 		if (fileCustom != null) {
@@ -396,11 +424,13 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 
 		updateTitle();
 
+		onIncludesChanges();
+
 		setShowRepeat(false);
 	}
 
 	private void updateTitle() {
-		String path = script.getFile().getAbsolutePath();
+		String path = getScriptFullPath();
 
 		FileMetadata fileCustom = FileMetadataManager.getCombined(path);
 
@@ -422,7 +452,7 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 	}
 
 	private void updateInputs() {
-		FileMetadata fileCustom = FileMetadataManager.getCombined(getPath());
+		FileMetadata fileCustom = FileMetadataManager.getCombined(getScriptFullPath());
 		if (fileCustom != null) {
 			inputsConfig.clear();
 			inputsConfig.addAll(fileCustom.getInputs());
@@ -487,8 +517,6 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 	 */
 	@Deprecated
 	private void storeIntervalSeconds() {
-		if (FileMetadataFromRegistryManager.REGISTRY_STORAGE_DEACTIVATED) return;
-
 		String intervalStr = choiceSeconds.getSelectionModel().getSelectedItem();
 		if (intervalStr == null) {
 			return;
@@ -528,15 +556,16 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		onExecutionStarted();
 
 		File filepath = script.getFile();
-		ScriptFile file = new ScriptFile(filepath);
 
+		ScriptFile file = createScriptFile();
 		file.setInputs(inputsConfig);
 
-		inst = new ScriptInst();
+		inst = new ScriptInst(scriptPreparation);
 
 		ScriptStartResult startResult = ScriptRun.runScriptInThread(null, inst, file);
 		scriptRunning = startResult.getScriptRunning();
 
+		// Recent
 		ScriptRecent scriptRecent = startResult.getScriptRecent();
 		if (scriptRecent != null) {
 			executionTimes.add(scriptRecent.getTime());
@@ -585,11 +614,6 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 	}
 
 	public void setNewTitle(String title) {
-		if (FileMetadataFromRegistryManager.REGISTRY_STORAGE_DEACTIVATED) return;
-
-		String path = script.getFile().getAbsolutePath();
-		FileMetadataManager.setTitle(path, title);
-
 		updateTitle();
 	}
 
@@ -633,8 +657,14 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 
 			Pane space = new Pane();
 			Pane space2 = new Pane();
+			Pane space3 = new Pane();
+
 			space.setMinWidth(12);
 			space2.setMinWidth(12);
+			space3.setMinWidth(12);
+
+			Pane spaceSmall1 = new Pane();
+			spaceSmall1.setMinWidth(4);
 
 			HBox boxButtons = new HBox();
 			boxButtons.getChildren().add(buttonSaveCode);
@@ -643,11 +673,16 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 			boxButtons.getChildren().add(buttonSelectSnippetsOutput);
 			boxButtons.getChildren().add(space2);
 			boxButtons.getChildren().add(buttonReloadFieldsFromScript);
+			boxButtons.getChildren().add(space3);
+			boxButtons.getChildren().add(buttonIncludes);
+			boxButtons.getChildren().add(spaceSmall1);
+			boxButtons.getChildren().add(labelIncludes);
+			boxButtons.getChildren().add(buttonShowFullScript);
 			paneTop.setLeft(boxButtons);
 
 			BorderPane codeContainer = new BorderPane();
 			codeContainer.setTop(paneTop);
-			codeContainer.setCenter(paneCodeOnly.getStackPage());
+			codeContainer.setCenter(paneCodeOnly.getContent());
 
 			//codeContainer.setBackground(new Background(new BackgroundFill(Color.BEIGE, null, null)));
 
@@ -682,6 +717,44 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		}
 	}
 
+	public void setShowFullScript(boolean showFullScript) {
+		if (dockNodeFullScript == null) {
+			paneFullScript = new PaneCodeOnly(null);
+
+			dockNodeFullScript = AnchorageSystem.createDock(Ln.get(K.DockFullScript), null, paneFullScript.getContent());
+			dockNodeFullScript.getContent().setHideTitle();
+
+			dockNodeFullScript.getContent().showBarPanel();
+
+			dockNodeFullScript.setDockNodeListener(new IDockNodeListener() {
+				@Override
+				public void dockNodeUndocked(DockNode dockNode) {
+				}
+
+				@Override
+				public void dockNodeBeforeCloseStage(StageFloatable stageFloatable) {
+				}
+
+				@Override
+				public void afterDockNodeClosed(StageFloatable stageFloatable) {
+					dockNodeFullScript = null;
+					paneFullScript = null;
+				}
+			});
+		}
+
+		if (showFullScript) {
+			ScriptRun.prepareScript(scriptPreparation, createScriptFile());
+			paneFullScript.setText(scriptPreparation.getScript());
+
+			dockNodeFullScript.dock(stationBottom, DockPosition.CENTER, 1);
+		} else {
+			if (dockNodeFullScript != null) {
+				dockNodeFullScript.undock();
+			}
+		}
+	}
+
 	private String readFileTextFromFile() {
 		String scriptText = ScriptReader.readScript(script.getFile());
 
@@ -701,10 +774,6 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 	 */
 	public void storeInputs() {
 		//FileMetadataManager.setInputs(getPath(), inputsConfig);
-	}
-
-	public String getPath() {
-		return script.getFile().getAbsolutePath();
 	}
 
 	@Override
@@ -951,6 +1020,42 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		}
 	}
 
+	private void editIncludes() {
+		List<String> filenames = DirectoryMetadataManager.getIncludeFilesList().stream().map(file -> file.getAbsolutePath()).collect(Collectors.toList());
+
+		List<String> includesNotSelected = new ArrayList();
+		includesNotSelected.addAll(filenames);
+
+		String path = getScriptFullPath();
+		FileMetadata fileMetadata = FileMetadataFromRegistryManager.get(path);
+		if (fileMetadata != null) {
+			includesNotSelected.removeAll(fileMetadata.getIncludes());
+		}
+
+		DialogArrange arrange = new DialogArrange(AppWindowFx.getStage(), Ln.get(K.SelectIncludes), Ln.get(K.SelectIncludesInfo), filenames,
+				includesNotSelected, true);
+		boolean result = arrange.open();
+		if (!result) {
+			return;
+		}
+
+		if (fileMetadata == null) {
+			fileMetadata = FileMetadataFromRegistryManager.getOrCreate(path);
+		}
+
+		fileMetadata.getIncludes().clear();
+
+		List<String> values = new ArrayList(arrange.getValues());
+		values.removeAll(arrange.getHidden());
+
+		fileMetadata.getIncludes().addAll(values);
+
+		FileMetadataFromRegistryManager.store();
+
+		// Update
+		onIncludesChanges();
+	}
+
 	/**
 	 * Script has terminated (from Thread)
 	 */
@@ -1006,6 +1111,8 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 
 			CodeUnsavedPanes.remove(this);
 			ControllerPages.updateEditings();
+
+			ControllerFileSave.onFileSaved(file);
 
 			afterSaved();
 		} catch (Exception e) {
@@ -1174,6 +1281,24 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		return inputsConfig;
 	}
 
+	private void onIncludesChanges() {
+		labelIncludes.setText(null);
+		FxTooltip.setTooltip(labelIncludes, null);
+
+		FileMetadata fileMetadata = FileMetadataFromRegistryManager.get(getScriptFullPath());
+		if (fileMetadata == null) {
+			return;
+		}
+
+		if (!fileMetadata.getIncludes().isEmpty()) {
+			String text = Ln.colonSpace(K.ScriptsIncluded) + fileMetadata.getIncludes().size();
+			labelIncludes.setText(text);
+
+			String tooltip = Ln.colon(K.ScriptsIncluded) + "\n" + StringUtils.joinWith(fileMetadata.getIncludes(), "\n");
+			FxTooltip.setTooltip(labelIncludes, tooltip);
+		}
+	}
+
 	private void setFileHasChangedOutside() {
 		FxControlUtils.setVisible(boxFileChanged, true);
 	}
@@ -1197,6 +1322,11 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 		}
 	}
 
+	private ScriptFile createScriptFile() {
+		File filepath = script.getFile();
+		return new ScriptFile(filepath);
+	}
+
 	private boolean isCodeShowing() {
 		return dockNodeCode != null && dockNodeCode.isDockDocked();
 	}
@@ -1207,5 +1337,10 @@ public class PaneScriptDetails implements IScriptResultListener, IRepeatListener
 
 	private boolean isOutputShowing() {
 		return dockNodeOutput != null && dockNodeOutput.isDockDocked();
+	}
+
+	public String getScriptFullPath() {
+		String path = script.getFile().getAbsolutePath();
+		return path;
 	}
 }

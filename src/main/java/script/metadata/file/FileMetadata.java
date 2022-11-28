@@ -16,6 +16,10 @@ public class FileMetadata {
 
 	private int repeatSeconds = 10;
 
+	// Includes
+
+	private List<String> includes = new ArrayList<>();
+
 	// --- Libraries ---
 
 	// Additional paths
@@ -81,6 +85,10 @@ public class FileMetadata {
 
 	public List<InputConfig> getInputs() {
 		return inputs;
+	}
+
+	public List<String> getIncludes() {
+		return includes;
 	}
 
 	public void setInputs(List<InputConfig> inputs) {

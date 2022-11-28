@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import com.rwu.log.Log;
 import com.rwu.misc.StringUtils;
+import javafx.scene.Node;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -18,9 +19,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import script.frame.code.GroovyHighlight.VisibleParagraphStyler;
 import script.frame.code.editor.EditorCss;
+import script.frame.intf.IContent;
 import script.frame.listener.ICodeEditListener;
 
-public class PaneCodeOnly {
+public class PaneCodeOnly implements IContent {
 
 	private static int MAX_LINE_COUNT = 25;
 
@@ -40,7 +42,6 @@ public class PaneCodeOnly {
 	}
 
 	public void setText(String scriptText) {
-		//codeArea.clear();
 		reportEdit = false;
 
 		StringBuilder sb = new StringBuilder();
@@ -54,7 +55,11 @@ public class PaneCodeOnly {
 			}
 		}
 
-		codeArea.replaceText(0, codeArea.getLength(), scriptText + sb.toString());
+		if (scriptText != null) {
+			sb.insert(0, scriptText);
+		}
+
+		codeArea.replaceText(0, codeArea.getLength(), sb.toString());
 
 		reportEdit = true;
 	}
@@ -70,7 +75,7 @@ public class PaneCodeOnly {
 			// boolean equals = codeArea.getText().equals(textOfFileTree);
 			// parent.setDirty(!equals);
 
-			if (reportEdit) {
+			if (listener != null && reportEdit) {
 				listener.textChanged();
 			}
 		});
@@ -135,7 +140,8 @@ public class PaneCodeOnly {
 		codeArea.insertText(caretPosition, text);
 	}
 
-	public StackPane getStackPage() {
+	@Override
+	public Node getContent() {
 		return stackPage;
 	}
 

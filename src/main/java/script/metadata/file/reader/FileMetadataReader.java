@@ -1,5 +1,6 @@
 package script.metadata.file.reader;
 
+import com.rwu.log.Log;
 import com.rwu.misc.FileIOUtils;
 import script.input.InputConfig;
 import script.input.InputModeEnum;
@@ -126,12 +127,16 @@ public class FileMetadataReader {
             value = fieldParts[1].trim();
         }
 
+        //Log.tmp(" Field setting: '" + keyword + "', '" + value + "'");
+
+        if ("mandatory".equals(keyword)) {
+            inputConfig.setMandatory(true);
+        }
+
         if (value == null) {
             // Abort
             return;
         }
-
-        //Log.tmp(" Field setting: '" + keyword + "', '" + value + "'");
 
         if ("type".equals(keyword)) {
             InputModeEnum mode = InputModeEnum.fromConfig(value);
@@ -142,8 +147,6 @@ public class FileMetadataReader {
             inputConfig.setSize(InputPersistence.parse(value));
         } else if ("description".equals(keyword)) {
             inputConfig.setDescription(value);
-        } else if ("mandatory".equals(keyword)) {
-            inputConfig.setMandatory(true);
         } else if (KEYWORD_SELECTION_ITEM.equals(keyword)) {
             String[] valueParts = value.split(",");
 

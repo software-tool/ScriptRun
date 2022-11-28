@@ -9,6 +9,8 @@ public class DirectoryMetadata {
 	private String title;
 	private String description;
 
+	private boolean isIncludeDirectory = false;
+
 	// Display
 	private DirectoryDisplayMode displayMode = null;
 
@@ -69,4 +71,11 @@ public class DirectoryMetadata {
 		this.description = description;
 	}
 
+	public boolean isIncludeDirectory() {
+		return isIncludeDirectory;
+	}
+
+	public void setIncludeDirectory(boolean includeDirectory) {
+		isIncludeDirectory = includeDirectory;
+	}
 }

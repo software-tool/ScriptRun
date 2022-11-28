@@ -23,10 +23,8 @@ public class FileMetadataManager {
 			read = new FileMetadata(Arrays.asList(path));
 		}
 
-		if (!FileMetadataFromRegistryManager.REGISTRY_STORAGE_DEACTIVATED) {
-			FileMetadata fromRegistry = FileMetadataFromRegistryManager.get(path);
-			applyAdditional(read, fromRegistry);
-		}
+		FileMetadata fromRegistry = FileMetadataFromRegistryManager.get(path);
+		applyAdditional(read, fromRegistry);
 
 		return read;
 	}
@@ -43,28 +41,10 @@ public class FileMetadataManager {
 			userDefined.setDescription(additional.getDescription());
 		}
 
-		// Seconds (not in file)
-		userDefined.setRepeatSeconds(additional.getRepeatSeconds());
+		// Seconds
+		//userDefined.setRepeatSeconds(additional.getRepeatSeconds());
 
-		List<InputConfig> userFields = userDefined.getInputs();
-		List<InputConfig> additionalFields = additional.getInputs();
 
-		// Add fields
-		for(InputConfig additionalField : additionalFields) {
-			if (!hasField(userFields, additionalField)) {
-				userFields.add(additionalField);
-			}
-		}
-
-		// Sizes
-		for(InputConfig additionalField : additionalFields) {
-			InputConfig field = getField(userFields, additionalField);
-			if (field == null) {
-				continue;
-			}
-
-			field.setSize(additionalField.getSize());
-		}
 	}
 
 	private static boolean hasField(List<InputConfig> fields, InputConfig toFind) {
@@ -83,35 +63,20 @@ public class FileMetadataManager {
 
 	@Deprecated
 	public static void setIntervalSeconds(String path, int repeatSeconds) {
-		if (FileMetadataFromRegistryManager.REGISTRY_STORAGE_DEACTIVATED) return;
-
-		FileMetadata custom = FileMetadataFromRegistryManager.getOrCreate(path);
-		custom.setRepeatSeconds(repeatSeconds);
+		//FileMetadata custom = FileMetadataFromRegistryManager.getOrCreate(path);
+		//custom.setRepeatSeconds(repeatSeconds);
 
 		// Save
-		FileMetadataFromRegistryManager.store();
+		//FileMetadataFromRegistryManager.store();
 	}
 
 	@Deprecated
 	public static void setTitle(String path, String title) {
-		if (FileMetadataFromRegistryManager.REGISTRY_STORAGE_DEACTIVATED) return;
-
-		FileMetadata custom = FileMetadataFromRegistryManager.getOrCreate(path);
-		custom.setTitle(title);
+		//FileMetadata custom = FileMetadataFromRegistryManager.getOrCreate(path);
+		//custom.setTitle(title);
 
 		// Save
-		FileMetadataFromRegistryManager.store();
-	}
-
-	@Deprecated
-	private static void setInputs(String path, List<InputConfig> inputs) {
-		if (FileMetadataFromRegistryManager.REGISTRY_STORAGE_DEACTIVATED) return;
-
-		FileMetadata custom = FileMetadataFromRegistryManager.getOrCreate(path);
-		custom.setInputs(inputs);
-
-		// Save
-		FileMetadataFromRegistryManager.store();
+		//FileMetadataFromRegistryManager.store();
 	}
 
 }

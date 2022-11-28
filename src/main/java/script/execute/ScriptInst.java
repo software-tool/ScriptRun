@@ -5,7 +5,6 @@ import groovy.lang.Script;
 import script.Execution;
 import script.Input;
 import script.Output;
-import script.constant.ScriptConstants;
 import script.frame.PaneMain;
 import script.frame.state.ExecutionPanes;
 import script.input.InputConfig;
@@ -21,23 +20,24 @@ import java.util.Map;
  */
 public class ScriptInst {
 
+	private ScriptPreparation scriptPreparation;
+
 	private Map<String, Object> variables = new HashMap();
-
-	private StringBuilder sb = new StringBuilder();
-	private String content = null;
-
 	private int instId;
-
 	private Output output;
 
-	private static final String NEWLINE = "\n";
+	public ScriptInst(ScriptPreparation scriptPreparation) {
+		if (scriptPreparation == null) {
+			this.scriptPreparation = new ScriptPreparation();
+		} else {
+			this.scriptPreparation = scriptPreparation;
+		}
 
-	public ScriptInst() {
 		this.instId = ExecutionPanes.getNextScriptId();
 	}
 
 	public void applyContent(String content) {
-		this.content = content;
+		scriptPreparation.applyContent(content);
 	}
 
 	public Input applyInputs(List<InputConfig> inputs) {
@@ -57,6 +57,10 @@ public class ScriptInst {
 		addVariable("output", output);
 
 		return output;
+	}
+
+	public void setFilesIncluded(List<String> included) {
+		scriptPreparation.setFilesIncluded(included);
 	}
 
 	public Execution setExecution(Input input, Output output) {
@@ -111,17 +115,7 @@ public class ScriptInst {
 	}
 
 	public String getScript() {
-		sb.setLength(0);
-
-		sb.append(ScriptConstants.STATIC_INPUT);
-		sb.append(ScriptConstants.STATIC_OUTPUT);
-		sb.append(" ");
-
-		sb.append(content);
-
-		//Log.tmp(sb.toString());
-
-		return sb.toString();
+		return scriptPreparation.getScript();
 	}
 
 	public int getInstId() {
@@ -134,6 +128,10 @@ public class ScriptInst {
 
 	public Output getOutput() {
 		return output;
+	}
+
+	public ScriptPreparation getScriptPreparation() {
+		return scriptPreparation;
 	}
 
 	private static class DelegatingPrintStream extends PrintStream {

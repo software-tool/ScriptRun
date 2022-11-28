@@ -1,7 +1,6 @@
 package script.execute;
 
 import com.rwu.application.lang.LangHelper.Language;
-import com.rwu.log.Log;
 import script.Input;
 import script.Output;
 import script.execute.intf.IScriptImpl;
@@ -10,9 +9,10 @@ import script.execute.result.ScriptErrorType;
 import script.execute.result.ScriptRunning;
 import script.groovy.GroovyScript;
 import script.manager.ScriptReader;
+import script.metadata.file.FileMetadata;
+import script.metadata.file.FileMetadataFromRegistryManager;
 import script.recent.ScriptRecent;
 import script.recent.ScriptRecentManager;
-import script.util.Multiple;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,16 +35,33 @@ public class ScriptRun {
 	private static int SCRIPT_LOOP_SLEEP_TIME_FAST = 200;
 	private static int SCRIPT_LOOP_SLEEP_TIME_DEFAULT = 1000;
 
-	/**
-	 * Run script
-	 */
-	public static ScriptStartResult runScriptInThread(Language language, ScriptInst scriptInst, ScriptFile scriptFile) {
+	public static ScriptStartResult prepareScript(ScriptPreparation scriptPreparation, ScriptFile scriptFile) {
 		String content = ScriptReader.readScript(scriptFile);
 		if (content == null) {
 			return new ScriptStartResult(new ScriptRunning(getError(null, ScriptErrorType.COMPILE, null)), null);
 		}
 
-		scriptInst.applyContent(content);
+		// File content
+		scriptPreparation.applyContent(content);
+
+		// Includes
+		String path = scriptFile.getFile().getAbsolutePath();
+		FileMetadata fileMetadata = FileMetadataFromRegistryManager.get(path);
+		if (fileMetadata != null) {
+			scriptPreparation.setFilesIncluded(fileMetadata.getIncludes());
+		}
+
+		return null;
+	}
+
+	/**
+	 * Run script
+	 */
+	public static ScriptStartResult runScriptInThread(Language language, ScriptInst scriptInst, ScriptFile scriptFile) {
+		ScriptStartResult prepareResult = prepareScript(scriptInst.getScriptPreparation(), scriptFile);
+		if (prepareResult != null) {
+			return prepareResult;
+		}
 
 		IScriptImpl scriptImpl = getGroovy(scriptFile.getFile(), scriptInst);
 

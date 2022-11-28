@@ -3,10 +3,13 @@ package script.metadata.directory;
 import com.rwu.application.config.AppConfigUtil;
 import com.rwu.log.Log;
 import com.rwu.misc.EqualsUtil;
+import com.rwu.misc.FileGetUtils;
+import com.rwu.misc.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import script.config.ConfigConstants;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +21,7 @@ public class DirectoryMetadataManager {
 	private static String PATH = "path";
 	private static String SHOW_ALL_FILES = "all_files";
 	private static String DISPLAY_MODE = "display";
+	private static String IS_INCLUDE = "is_include";
 
 	private static String TITLE = "title";
 	private static String DESCRIPTION = "description";
@@ -34,8 +38,14 @@ public class DirectoryMetadataManager {
 
 	public static void setDescription(String path, String description) {
 		DirectoryMetadata found = getOrCreate(path);
-
 		found.setDescription(description);
+
+		store();
+	}
+
+	public static void setIsIncludeDirectory(String path, boolean isInclude) {
+		DirectoryMetadata found = getOrCreate(path);
+		found.setIncludeDirectory(isInclude);
 
 		store();
 	}
@@ -58,6 +68,34 @@ public class DirectoryMetadataManager {
 		}
 
 		return found;
+	}
+
+	public static List<File> getIncludeFilesList() {
+		List<File> result = new ArrayList();
+
+		for (DirectoryMetadata custom : metadataEntries) {
+			if (!custom.isIncludeDirectory()) {
+				continue;
+			}
+
+			String path = custom.getPath();
+			File directory = FileGetUtils.getFileIfPossible(path);
+
+			if (directory == null || !directory.exists()) {
+				continue;
+			}
+
+			File[] files = directory.listFiles();
+			for(File file : files) {
+				if (file.isDirectory()) {
+					continue;
+				}
+
+				result.add(file);
+			}
+		}
+
+		return result;
 	}
 
 	/**
@@ -85,8 +123,12 @@ public class DirectoryMetadataManager {
 			String description = null;
 
 			boolean showAllFiles = false;
+			boolean isInclude = false;
 			if (parsed.has(SHOW_ALL_FILES)) {
 				showAllFiles = parsed.getBoolean(SHOW_ALL_FILES);
+			}
+			if (parsed.has(IS_INCLUDE)) {
+				isInclude = parsed.getBoolean(IS_INCLUDE);
 			}
 
 			String displayModeStr = null;
@@ -106,6 +148,7 @@ public class DirectoryMetadataManager {
 
 			DirectoryMetadata custom = new DirectoryMetadata(path);
 			custom.setShowAllFiles(showAllFiles);
+			custom.setIncludeDirectory(isInclude);
 			custom.setDisplayMode(DirectoryDisplayMode.fromConfig(displayModeStr));
 			custom.setTitle(title);
 			custom.setDescription(description);
@@ -133,6 +176,9 @@ public class DirectoryMetadataManager {
 
 			if (custom.getShowAllFiles()) {
 				obj.put(SHOW_ALL_FILES, true);
+			}
+			if (custom.isIncludeDirectory()) {
+				obj.put(IS_INCLUDE, true);
 			}
 
 			DirectoryDisplayMode displayMode = custom.getDisplayMode();

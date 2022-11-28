@@ -208,6 +208,10 @@ public class StringUtils {
 		return join(null, values, ",", false);
 	}
 
+	public static String joinWith(List<String> values, String separator) {
+		return join(null, values, separator, false);
+	}
+
 	public static String joinWithSpace(String... strings) {
 		List<String> values = new ArrayList<>();
 		for (String str : strings) {
@@ -288,6 +292,10 @@ public class StringUtils {
 	public static int getLineCount(String text, int maximumCount) {
 		int counter = 0;
 		int offset = 0;
+
+		if (text == null) {
+			return 0;
+		}
 
 		while (true) {
 			if (offset >= text.length()) {
